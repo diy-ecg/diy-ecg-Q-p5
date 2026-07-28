@@ -13,6 +13,7 @@
 const RING_CAPACITY = 2000; // ~10s of samples at 200 Hz
 const DRAW_FPS = 10; // matches the backend's emit rate; no need to draw faster
 const GRID_SPACING_PX = 100;
+const PERF_SAMPLE_SIZE = 30; // rolling average window for drawSignal() timing
 
 const COLOR_LINE = "#2dd4bf";
 const COLOR_GRID = "rgba(255, 255, 255, 0.12)";
@@ -29,12 +30,14 @@ let lastYRange = null; // {min, max} of the most recently drawn frame
 let paused = false;
 let filters = { hp: true, no: true, tp: true, am: true };
 const filterCheckboxes = {};
+let drawSignalTimes = []; // rolling buffer of drawSignal() durations in ms
 
 // ---- UI elements (created in setup()) ----
 let chartHolder;
 let connectionLabel;
 let statusValue, sampleCountValue, bpmValue, polarityValue, samplingRateValue;
 let showThresholdCheckbox;
+let showPerfCheckbox;
 let pauseButton;
 
 function setup() {
@@ -54,11 +57,18 @@ function draw() {
     return;
   }
 
+  const t0 = performance.now();
   drawSignal();
+  recordDrawSignalTime(performance.now() - t0);
+
   if (showThresholdCheckbox.checked() && threshold !== null) {
     drawThresholdLine();
   }
   drawYLabels();
+
+  if (showPerfCheckbox.checked()) {
+    drawPerfOverlay();
+  }
 }
 
 function windowResized() {
@@ -84,6 +94,9 @@ function buildControlPanel(parent) {
 
   createElement("h2", "Display").parent(panel);
   showThresholdCheckbox = createCheckbox("Show threshold", false)
+    .class("control-row")
+    .parent(panel);
+  showPerfCheckbox = createCheckbox("Show performance", false)
     .class("control-row")
     .parent(panel);
 
@@ -192,6 +205,30 @@ function drawPlaceholderText() {
   textAlign(CENTER, CENTER);
   textSize(14);
   text("Waiting for data from the microcontroller…", width / 2, height / 2);
+}
+
+// Tracks how long drawSignal() itself takes, independent of the fixed
+// frameRate() cap, so optimizations there show up even when the frame
+// budget is already met.
+function recordDrawSignalTime(ms) {
+  drawSignalTimes.push(ms);
+  if (drawSignalTimes.length > PERF_SAMPLE_SIZE) drawSignalTimes.shift();
+}
+
+function averageDrawSignalTime() {
+  if (drawSignalTimes.length === 0) return 0;
+  const sum = drawSignalTimes.reduce((total, ms) => total + ms, 0);
+  return sum / drawSignalTimes.length;
+}
+
+function drawPerfOverlay() {
+  noStroke();
+  fill(COLOR_TEXT);
+  textSize(12);
+  textAlign(LEFT, TOP);
+  const fps = frameRate().toFixed(1);
+  const ms = averageDrawSignalTime().toFixed(2);
+  text(`${fps} FPS · drawSignal: ${ms} ms`, 8, 8);
 }
 
 /* ==================== Buffer + controls ==================== */
