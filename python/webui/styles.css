@@ -1,0 +1,162 @@
+:root {
+  color-scheme: dark;
+  font-family: "Inter", "Helvetica", sans-serif;
+  --bg: #11161b;
+  --panel: #1b222c;
+  --panel-light: #252f3c;
+  --accent: #2dd4bf;
+  --text: #f3f4f6;
+  --muted: #94a3b8;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+}
+
+#app {
+  display: flex;
+  min-height: 100vh;
+}
+
+.control-panel {
+  width: 260px;
+  padding: 24px;
+  background: var(--panel);
+  border-right: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.control-panel h2 {
+  margin: 18px 0 8px;
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+/* p5's createCheckbox() renders <div><input><label></div> */
+.control-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 10px;
+  font-size: 0.95rem;
+}
+
+.control-row input[type="checkbox"] {
+  width: 18px;
+  height: 18px;
+  accent-color: var(--accent);
+}
+
+.control-panel button {
+  display: block;
+  margin-top: 18px;
+  width: 100%;
+  padding: 10px 12px;
+  background: var(--accent);
+  border: none;
+  border-radius: 6px;
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: #03221d;
+  cursor: pointer;
+}
+
+.control-panel button:hover {
+  opacity: 0.85;
+}
+
+main {
+  flex: 1;
+  padding: 32px 40px;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.status-bar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.status-bar h1 {
+  margin: 0;
+  font-size: 2rem;
+}
+
+.status-bar p {
+  margin: 4px 0 0;
+  color: var(--muted);
+}
+
+.connection {
+  padding: 8px 16px;
+  border-radius: 999px;
+  font-weight: 600;
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.connection.online {
+  background: rgba(45, 212, 191, 0.2);
+  color: var(--accent);
+}
+
+.metrics {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 18px;
+}
+
+.metric {
+  background: var(--panel);
+  padding: 16px;
+  border-radius: 10px;
+}
+
+.metric .label {
+  display: block;
+  text-transform: uppercase;
+  font-size: 0.8rem;
+  color: var(--muted);
+  letter-spacing: 0.08em;
+}
+
+.metric .value {
+  display: block;
+  margin-top: 8px;
+  font-size: 1.6rem;
+  font-weight: 600;
+}
+
+#chart-holder {
+  position: relative;
+  background: var(--panel-light);
+  border-radius: 14px;
+  height: 420px;
+}
+
+@media (max-width: 900px) {
+  #app {
+    flex-direction: column;
+  }
+
+  .control-panel {
+    width: 100%;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px 32px;
+  }
+
+  .control-panel h2 {
+    width: 100%;
+  }
+}
